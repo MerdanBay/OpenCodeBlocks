@@ -158,29 +158,6 @@ class OCBScene(QGraphicsScene, Serializable):
             data = json.loads(file.read())
         return data
 
-    def clear(self):
-        """ Clear the scene from all items. """
-        self.has_been_modified = False
-        return super().clear()
-
-    def serialize(self) -> OrderedDict:
-        blocks = []
-        edges = []
-        for item in self.items():
-            if isinstance(item, OCBBlock):
-                blocks.append(item)
-            elif isinstance(item, OCBEdge):
-                edges.append(item)
-        blocks.sort(key=lambda x: x.id)
-        edges.sort(key=lambda x: x.id)
-        view = self.views()[0]
-        return OrderedDict([
-            ('id', self.id),
-            ('zoom', view.zoom),
-            ('blocks', [block.serialize() for block in blocks]),
-            ('edges', [edge.serialize() for edge in edges]),
-        ])
-
     def create_block_from_file(
             self, filepath: str, x: float = 0, y: float = 0):
         """ Create a new block from a .ocbb file """
@@ -206,6 +183,29 @@ class OCBScene(QGraphicsScene, Serializable):
         if hashmap is not None:
             hashmap.update({data['id']: block})
         return block
+
+    def clear(self):
+        """ Clear the scene from all items. """
+        self.has_been_modified = False
+        return super().clear()
+
+    def serialize(self) -> OrderedDict:
+        blocks = []
+        edges = []
+        for item in self.items():
+            if isinstance(item, OCBBlock):
+                blocks.append(item)
+            elif isinstance(item, OCBEdge):
+                edges.append(item)
+        blocks.sort(key=lambda x: x.id)
+        edges.sort(key=lambda x: x.id)
+        view = self.views()[0]
+        return OrderedDict([
+            ('id', self.id),
+            ('zoom', view.zoom),
+            ('blocks', [block.serialize() for block in blocks]),
+            ('edges', [edge.serialize() for edge in edges]),
+        ])
 
     def deserialize(self, data: OrderedDict,
                     hashmap: dict = None, restore_id: bool = True):
