@@ -37,7 +37,8 @@ class OCBView(QGraphicsView):
                  zoom_step: float = 1.25, zoom_min: float = 0.2, zoom_max: float = 5):
         super().__init__(parent=parent)
         self.mode = MODE_NOOP
-        self.zoom = 1
+
+        self._zoom = 1
         self.zoom_step, self.zoom_min, self.zoom_max = zoom_step, zoom_min, zoom_max
 
         self.edge_drag = None
@@ -168,10 +169,7 @@ class OCBView(QGraphicsView):
                 zoom_factor = self.zoom_step
             else:
                 zoom_factor = 1 / self.zoom_step
-
-            if self.zoom_min < self.zoom * zoom_factor < self.zoom_max:
-                self.zoom *= zoom_factor
-                self.scale(zoom_factor, zoom_factor)
+            self.zoom *= zoom_factor
         else:
             super().wheelEvent(event)
 
@@ -244,6 +242,17 @@ class OCBView(QGraphicsView):
             if self.mode == MODE_EDGE_DRAG:
                 self.edge_drag.destination = self.mapToScene(event.pos())
         return event
+
+    @property
+    def zoom(self) -> float:
+        return self._zoom
+
+    @zoom.setter
+    def zoom(self, value: float):
+        if self.zoom_min < value < self.zoom_max:
+            zoom_factor = self._zoom / value
+            self.scale(zoom_factor, zoom_factor)
+            self._zoom = value
 
     def set_mode(self, mode: str):
         """ Change the view mode.

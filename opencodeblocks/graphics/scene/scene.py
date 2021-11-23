@@ -8,7 +8,7 @@ import json
 from types import FunctionType
 from typing import List, OrderedDict, Union
 
-from PyQt5.QtCore import QLine, QRectF
+from PyQt5.QtCore import QLine, QPoint, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
@@ -173,8 +173,10 @@ class OCBScene(QGraphicsScene, Serializable):
                 edges.append(item)
         blocks.sort(key=lambda x: x.id)
         edges.sort(key=lambda x: x.id)
+        view = self.views()[0]
         return OrderedDict([
             ('id', self.id),
+            ('zoom', view.zoom),
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
@@ -211,6 +213,10 @@ class OCBScene(QGraphicsScene, Serializable):
         hashmap = hashmap if hashmap is not None else {}
         if restore_id:
             self.id = data['id']
+
+        view = self.views()[0]
+        if 'zoom' in data:
+            view.zoom = data['zoom']
 
         # Create blocks
         for block_data in data['blocks']:
