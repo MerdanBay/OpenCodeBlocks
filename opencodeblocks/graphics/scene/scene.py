@@ -38,9 +38,8 @@ class OCBScene(QGraphicsScene, Serializable):
         self.grid_size = grid_size
         self.grid_squares = grid_squares
 
-        self.width, self.height = width, height
-        self.setSceneRect(-self.width // 2, -self.height //
-                          2, self.width, self.height)
+        self.setSceneRect(-width // 2, -height // 2,
+                          width // 2, height // 2)
         self.setBackgroundBrush(self._background_color)
 
         self._has_been_modified = False
