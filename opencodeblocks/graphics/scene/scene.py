@@ -8,7 +8,7 @@ import json
 from types import FunctionType
 from typing import List, OrderedDict, Union
 
-from PyQt5.QtCore import QLine, QPoint, QRectF
+from PyQt5.QtCore import QLine, QRectF
 from PyQt5.QtGui import QColor, QPainter, QPen
 from PyQt5.QtWidgets import QGraphicsScene
 
@@ -39,7 +39,7 @@ class OCBScene(QGraphicsScene, Serializable):
         self.grid_squares = grid_squares
 
         self.setSceneRect(-width // 2, -height // 2,
-                          width // 2, height // 2)
+                          width // 1, height // 1)
         self.setBackgroundBrush(self._background_color)
 
         self._has_been_modified = False
@@ -163,7 +163,7 @@ class OCBScene(QGraphicsScene, Serializable):
         with open(filepath, 'r', encoding='utf-8') as file:
             data = json.loads(file.read())
             data["position"] = [x, y]
-            data["sockets"] = {}
+            data["sockets"] = []
             self.create_block(data, None, False)
 
     def create_block(self, data: OrderedDict, hashmap: dict = None,
@@ -199,9 +199,12 @@ class OCBScene(QGraphicsScene, Serializable):
         blocks.sort(key=lambda x: x.id)
         edges.sort(key=lambda x: x.id)
         view = self.views()[0]
+        pos = (view.horizontalScrollBar().value(),
+               view.verticalScrollBar().value())
         return OrderedDict([
             ('id', self.id),
             ('zoom', view.zoom),
+            ('position', pos),
             ('blocks', [block.serialize() for block in blocks]),
             ('edges', [edge.serialize() for edge in edges]),
         ])
@@ -216,6 +219,13 @@ class OCBScene(QGraphicsScene, Serializable):
         view = self.views()[0]
         if 'zoom' in data:
             view.zoom = data['zoom']
+        if 'position' in data:
+            x, y = data['position']
+            print(x, y)
+            view.horizontalScrollBar().setValue(x)
+            view.verticalScrollBar().setValue(y)
+            print(view.horizontalScrollBar().value(),
+                  view.verticalScrollBar().value())
 
         # Create blocks
         for block_data in data['blocks']:
