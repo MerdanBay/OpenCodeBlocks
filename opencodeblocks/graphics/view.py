@@ -245,6 +245,7 @@ class OCBView(QGraphicsView):
 
     @property
     def zoom(self) -> float:
+        """ Zoom of the view """
         return self._zoom
 
     @zoom.setter
